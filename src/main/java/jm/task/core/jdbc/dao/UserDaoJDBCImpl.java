@@ -49,32 +49,48 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(final String name, final String lastName, final byte age) {
-        final String INSERT_USER = "INSERT INTO user (name, lastname, age) VALUES (?, ?, ?)";
-        try (final Connection connection = Util.getConnection();
-             final PreparedStatement preparedStmt = connection.prepareStatement(INSERT_USER)
-        ) {
-            preparedStmt.setString(1, name);
-            preparedStmt.setString(2, lastName);
-            preparedStmt.setByte(3, age);
-            preparedStmt.executeUpdate();
-            System.out.println("User with the name - " + name + " has been added to the database");
-        } catch (final SQLException e) {
+        try (final Connection connection = Util.getConnection()) {
+            try {
+                connection.setAutoCommit(false);
+
+                final String INSERT_USER = "INSERT INTO user (name, lastname, age) VALUES (?, ?, ?)";
+                final PreparedStatement preparedStmt = connection.prepareStatement(INSERT_USER);
+                preparedStmt.setString(1, name);
+                preparedStmt.setString(2, lastName);
+                preparedStmt.setByte(3, age);
+                preparedStmt.executeUpdate();
+
+                connection.commit();
+                System.out.println("User with the name - " + name + " has been added to the database");
+            } catch (final Exception e) {
+                connection.rollback();
+                System.err.println("Transaction rolled back");
+            }
+        } catch (
+                final SQLException e) {
             System.err.println("Failed to add data");
         }
     }
 
     @Override
     public void removeUserById(final long id) {
-        final String DELETE_USER = "DELETE FROM user WHERE id = ?";
-        try (final Connection connection = Util.getConnection();
-             final PreparedStatement preparedStmt = connection.prepareStatement(DELETE_USER)
-        ) {
-            preparedStmt.setLong(1, id);
-            preparedStmt.executeUpdate();
+        try (final Connection connection = Util.getConnection()) {
+            try {
+                connection.setAutoCommit(false);
+
+                final String DELETE_USER = "DELETE FROM user WHERE id = ?";
+                final PreparedStatement preparedStmt = connection.prepareStatement(DELETE_USER);
+                preparedStmt.setLong(1, id);
+                preparedStmt.executeUpdate();
+
+                connection.commit();
+            } catch (final Exception e) {
+                connection.rollback();
+                System.err.println("Transaction rolled back");
+            }
         } catch (final SQLException e) {
             System.err.println("There is no such id");
         }
-
     }
 
     @Override
