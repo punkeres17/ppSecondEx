@@ -10,18 +10,18 @@ public class Main {
 
     public static void main(final String[] args) {
 
-        Util.getConnection();
+        Util.getSessionFactory();
 
-        final UserService userService = new UserServiceImpl();
-        userService.createUsersTable();
-        userService.saveUser("Roman", "Smirnov", (byte) 28);
-        userService.saveUser("Liza", "Smirnova", (byte) 27);
-        userService.saveUser("Pavel", "Nevmovenko", (byte) 30);
-        userService.saveUser("Nikita", "Kologriviy", (byte) 5);
+        final UserService userServiceHibernate = new UserServiceImpl();
+        userServiceHibernate.createUsersTable();
+        userServiceHibernate.saveUser("Roman", "Smirnov", (byte) 28);
+        userServiceHibernate.saveUser("Liza", "Smirnova", (byte) 27);
+        userServiceHibernate.saveUser("Pavel", "Nevmovenko", (byte) 30);
+        userServiceHibernate.saveUser("Nikita", "Kologriviy", (byte) 5);
 
-        userService.getAllUsers().forEach(System.out::println);
-        userService.cleanUsersTable();
-        userService.dropUsersTable();
+        userServiceHibernate.getAllUsers().forEach(System.out::println);
+        userServiceHibernate.cleanUsersTable();
+        userServiceHibernate.dropUsersTable();
 
 
     }

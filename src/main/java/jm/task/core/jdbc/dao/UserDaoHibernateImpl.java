@@ -56,21 +56,59 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(final String name, final String lastName, final byte age) {
-
+        try (final Session session = Util.getSessionFactory().openSession()) {
+            final Transaction transaction = session.beginTransaction();
+            try {
+                final User user = new User(name, lastName, age);
+                session.save(user);
+                transaction.commit();
+            } catch (final Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                log.error("Error with adding data to the table - 'user'", e);
+            }
+        }
     }
 
     @Override
     public void removeUserById(final long id) {
-
+        try (final Session session = Util.getSessionFactory().openSession()) {
+            final Transaction transaction = session.beginTransaction();
+            try {
+                final User user = session.get(User.class, id);
+                session.delete(user);
+                transaction.commit();
+            } catch (final Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                log.error("Error with deleting a user by index in the table - 'user'", e);
+            }
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        return null;
+        try (final Session session = Util.getSessionFactory().openSession()) {
+            return session.createQuery("from User", User.class).list();
+        }
     }
 
     @Override
     public void cleanUsersTable() {
-
+        try (final Session session = Util.getSessionFactory().openSession()) {
+            final Transaction transaction = session.beginTransaction();
+            try {
+                final String TRUNCATE_TABLE = "TRUNCATE TABLE user";
+                session.createSQLQuery(TRUNCATE_TABLE).executeUpdate();
+                transaction.commit();
+            } catch (final Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                log.error("Error with deleting data from the table - 'user'", e);
+            }
+        }
     }
 }
